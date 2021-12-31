@@ -1,0 +1,1 @@
+if (document.cookie) document.getElementById("textarea").value = decodeURIComponent(document.cookie);
