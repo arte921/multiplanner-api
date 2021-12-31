@@ -1,18 +1,26 @@
 const path = require("path");
 const http = require('http');
+const fs = require('fs/promises');
 
 const leesMap = require("./functies/leesMap.js");
+const invertedSwitch = require("./functies/invertedSwitch.js");
 
 (async () => {
     const services = {};
-    
-    const servicepaden = (await leesMap(path.join("./services"))).paden;
+    const paginas = {};
+
+    const servicepaden = (await leesMap("./services")).paden;
+    const paginapaden = (await leesMap("./paginas")).paden;
 
     for (const pad of servicepaden) {
         services[pad.slice(9, -3)] = require(`./${pad}`);
     }
 
-    
+    for (const pad of paginapaden) {
+        paginas[pad.slice(8)] = (await fs.readFile(`./${pad}`)).toString();
+    }
+
+
     http.createServer((request, response) => {
         const { headers, method, url } = request;
         let body = [];
@@ -27,21 +35,42 @@ const leesMap = require("./functies/leesMap.js");
 
                 body = Buffer.concat(body).toString();
                 response.on('error', console.error);
-            
-                const service = services[url.slice(1)];
-                console.log(body);
 
-                service
-                    .service(body)
-                    .then((antwoord) => {
-                        response.statusCode = 200;
-                        response.setHeader('Content-Type', service.responsetype);
-                        response.end(antwoord);
-                    })
-                    .catch((error) => {
-                        response.statusCode = 400;
-                        response.end(error.toString());
-                    });
+                const resource = url.length == 1 ? "index.html" : url.slice(1);
+
+                invertedSwitch([
+                    [
+                        pad => services[pad],
+                        (_, service) => service
+                            .service(body)
+                            .then((antwoord) => {
+                                response.statusCode = 200;
+                                response.setHeader('Content-Type', service.responsetype);
+                                response.end(antwoord);
+                            })
+                            .catch((error) => {
+                                response.statusCode = 400;
+                                response.end(error.toString());
+                            })
+                    ],
+                    [
+                        pad => paginas[pad],
+                        (_, pagina) => {
+                            response.statusCode = 200;
+                            response.setHeader('Content-Type', 'text/html');
+                            response.end(pagina);
+                        }
+                    ],
+                    [
+                        () => true,
+                        () => {
+                            response.statusCode = 404;
+                            response.end("Resource not found.");
+                        }
+                    ]
+                ], resource);
+
+
             });
-            }).listen(25000);
+    }).listen(25000);
 })();
