@@ -1,6 +1,6 @@
 const minimaalNul = (getal) => getal < 0 ? 0 : getal; 
 const formateerTijdsduurMinuten = (tijdsduur) => `${tijdsduur >= 60 ? `${Math.floor(tijdsduur / 60)} uur en ` : ""}${tijdsduur % 60} ${tijdsduur % 60 == 1 ? "minuut" : "minuten"}`;
-const formatteerTijd = (date) => new Date(date).toLocaleDateString('nl-NL', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Amsterdam' });
+const formatteerTijd = (date) => new Date(date).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Amsterdam' });
 const formatteerDatum = (date) => new Date(date).toLocaleDateString("nl-NL", {day: 'numeric', month: 'long', year: 'numeric'});
 const vertaalZijde = (zijde) => ({
     LEFT: "Links",
