@@ -36,7 +36,11 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                 body = Buffer.concat(body).toString();
                 response.on('error', console.error);
 
-                const resource = url.length == 1 ? "index.html" : url.slice(1);
+                const resource = invertedSwitch([
+                    [url => url.length <= 1, () => "index.html"],
+                    [url => url.startsWith("/"), () => url.slice(1)],
+                    [() => true, () => url]
+                ], url);
 
                 invertedSwitch([
                     [
@@ -57,7 +61,6 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                         pad => paginas[pad],
                         (_, pagina) => {
                             response.statusCode = 200;
-                            response.setHeader('Content-Type', 'text/html');
                             response.end(pagina);
                         }
                     ],
