@@ -25,15 +25,18 @@ const leesMap = require("./functies/leesMap.js");
                 response.on('error', console.error);
             
                 const service = services[url.slice(1)];
-                console.log(body);
-                
 
-                const antwoord = await service.service(body);      
-                
-
-                response.statusCode = 200;
-                response.setHeader('Content-Type', service.responsetype);
-                response.end(antwoord);
+                service
+                    .service(body)
+                    .then((antwoord) => {
+                        response.statusCode = 200;
+                        response.setHeader('Content-Type', service.responsetype);
+                        response.end(antwoord);
+                    })
+                    .catch((error) => {
+                        response.statusCode = 400;
+                        response.end(error.toString());
+                    });
             });
             }).listen(8080);
 })();
