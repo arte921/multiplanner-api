@@ -21,6 +21,10 @@ const leesMap = require("./functies/leesMap.js");
             .on('error', console.error)
             .on('data', e => body.push(e))
             .on('end', async () => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+                res.setHeader('Access-Control-Allow-Headers', '*');
+
                 body = Buffer.concat(body).toString();
                 response.on('error', console.error);
             
@@ -38,5 +42,5 @@ const leesMap = require("./functies/leesMap.js");
                         response.end(error.toString());
                     });
             });
-            }).listen(8080);
+            }).listen(25000);
 })();
