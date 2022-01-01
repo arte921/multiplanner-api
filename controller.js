@@ -8,9 +8,11 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
 (async () => {
     const services = {};
     const paginas = {};
+    const bijbels = {};
 
     const servicepaden = (await leesMap("./services")).paden;
     const paginapaden = (await leesMap("./paginas")).paden;
+    const bijbelpaden = (await leesMap("./bijbels")).paden;
 
     for (const pad of servicepaden) {
         services[pad.slice(9, -3)] = require(`./${pad}`);
@@ -19,6 +21,12 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
     for (const pad of paginapaden) {
         paginas[pad.slice(8)] = (await fs.readFile(`./${pad}`)).toString();
     }
+
+    for (const pad of bijbelpaden) {
+        bijbels[pad.slice(8, -4)] = (await fs.readFile(`./${pad}`)).toString();
+    }
+
+    console.log("Starting server...");
 
 
     http.createServer((request, response) => {
@@ -56,6 +64,13 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                                 response.statusCode = 400;
                                 response.end(error.toString());
                             })
+                    ],
+                    [
+                        pad => bijbels[pad],
+                        (_, bijbel) => {
+                            response.statusCode = 200;
+                            response.end(bijbel);
+                        }
                     ],
                     [
                         pad => paginas[pad],
