@@ -1,5 +1,9 @@
-if (document.cookie) document.getElementById("textarea").value = decodeURIComponent(document.cookie);
 
 axios
-    .get("tekst?filter=%5E(Proverbs%7CEcclesiastes)%20%5B0-9%5D%2B%20%5B0-9%2B%5D")
-    .then((resultaat) => document.getElementById("bijbeltekst").innerHTML = resultaat.data.match(/(?<=^[0-9A-Za-z ]+ )[^0-9]+$/)[0]);
+.get("tekst?filter=(ecclesiastes%7Cproverbs%7Cmattheus%7Cmark%7Cluke%7Cjohn)")
+.then((resultaat) => document.getElementById("bijbeltekst").innerHTML = resultaat.data.match(/(?<=^[0-9A-Za-z ]+ )[^0-9]+$/)[0]);
+
+if (document.cookie) {
+    document.getElementById("textarea").value = decodeURIComponent(document.cookie);
+    resizeInvoer(document.getElementById("textarea"));
+}
