@@ -1,8 +1,8 @@
-const invertedSwitch = (switches, waarde) => {
+const invertedSwitch = async (switches, waarde) => {
     for (const [test = () => {}, succes] of switches) {
-        const testResultaat = test(waarde);
+        const testResultaat = await test(waarde);
         if (testResultaat) {
-            return succes(waarde, testResultaat);
+            return await succes(waarde, testResultaat);
         }
     }
 };

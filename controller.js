@@ -4,15 +4,14 @@ const fs = require('fs/promises');
 
 const leesMap = require("./functies/leesMap.js");
 const invertedSwitch = require("./functies/invertedSwitch.js");
+const { getBijbel } = require('bijbel-package');
 
 (async () => {
     const services = {};
     const paginas = {};
-    const bijbels = {};
 
     const servicepaden = (await leesMap("./services")).paden;
     const paginapaden = (await leesMap("./paginas")).paden;
-    const bijbelpaden = (await leesMap("./bijbels")).paden;
 
     for (const pad of servicepaden) {
         services[pad.slice(9, -3)] = require(`./${pad}`);
@@ -21,12 +20,6 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
     for (const pad of paginapaden) {
         paginas[pad.slice(8)] = (await fs.readFile(`./${pad}`)).toString();
     }
-
-    for (const pad of bijbelpaden) {
-        bijbels[pad.slice(8, -4)] = (await fs.readFile(`./${pad}`)).toString();
-    }
-
-    console.log("Starting server...");
 
 
     http.createServer((request, response) => {
@@ -44,17 +37,28 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                 body = Buffer.concat(body).toString();
                 response.on('error', console.error);
 
-                const resource = invertedSwitch([
+                const pad = await invertedSwitch([
                     [url => url.length <= 1, () => "index.html"],
                     [url => url.startsWith("/"), () => url.slice(1)],
                     [() => true, () => url]
                 ], url);
 
-                invertedSwitch([
+                const resource = pad.match(/^[^\?]+/)[0];
+
+                const parameters = {};
+                const parameterStringMatch = pad.match(/(?<=\?)(.*)$/);
+                if (parameterStringMatch) {
+                    parameterStringMatch[0]
+                        .split("&")
+                        .map((parameter) => parameter.split("=").map(decodeURIComponent))
+                        .map(([key, value]) => parameters[key] = value);
+                }
+
+                await invertedSwitch([
                     [
-                        pad => services[pad],
+                        resource => services[resource],
                         (_, service) => service
-                            .service(body)
+                            .service(body, parameters)
                             .then((antwoord) => {
                                 response.statusCode = 200;
                                 response.setHeader('Content-Type', service.responsetype);
@@ -66,17 +70,17 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                             })
                     ],
                     [
-                        pad => bijbels[pad],
-                        (_, bijbel) => {
-                            response.statusCode = 200;
-                            response.end(bijbel);
-                        }
-                    ],
-                    [
-                        pad => paginas[pad],
+                        resource => paginas[resource],
                         (_, pagina) => {
                             response.statusCode = 200;
                             response.end(pagina);
+                        }
+                    ],
+                    [
+                        (resource) => getBijbel(resource, parameters.filter),
+                        (_, bijbel) => {
+                            response.statusCode = 200;
+                            response.end(bijbel);
                         }
                     ],
                     [
@@ -87,8 +91,6 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
                         }
                     ]
                 ], resource);
-
-
             });
     }).listen(25000);
 })();
