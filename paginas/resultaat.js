@@ -40,25 +40,6 @@ const resultaatHTML = (reis) => `
 
 
 <link rel="stylesheet" href="resultaat.css">
-<script>
-// Initialize and add the map
-function initMap() {
-    const map = new google.maps.Map(document.getElementById("google-map-reis"), {
-        zoom: 8,
-        center: { lat: 52.2587, lng: 5.6054 },
-        mapTypeId: "terrain",
-      });
-
-    const polyline = new google.maps.Polyline({
-        path: ${JSON.stringify(reis.polyline)},
-        geodesic: true,
-        strokeColor: "#FF0000",
-        strokeOpacity: 1.0,
-        strokeWeight: 2,
-        map: map
-      });
-}
-</script>
 </head>
 <body>
 
@@ -76,12 +57,16 @@ function initMap() {
                     <tr><th scope="row">Rijtijd</th><td>${formateerTijdsduurMinuten(reis.treintijd)}</td></tr>
                     <tr><th scope="row">Totale reistijd</th><td>${formateerTijdsduurMinuten(reis.reistijd)}</td></tr>
                     <tr><th scope="row">Hemelsbrede afstand</th><td>${Math.round(reis.hemelsbredeafstand)} kilometer</td></tr>
-                    <tr><th scope="row">Afgelegde afstand</th><td>${Math.round(reis.afstand)} kilometer</td></tr>
                 </table>
             </div>
         </div>
-
-        <div class="col" id="google-map-reis"></div>
+   
+        <div class="col">
+            <h3>Bewijs links</h3>
+            <ul class="list-group">
+                ${reis.urls.map((url, index) => `<li class="list-group-item"><a class="bewijslink" href=${url} target="_blank">Bewijslink ${index + 1}</a></li>`).join("")}
+            </ul>
+        </div>
 
         <div class="col">
             <h3>Reisplan</h3>
@@ -102,24 +87,8 @@ function initMap() {
                 </table>
             </div>
         </div>
-   
-        <div class="col">
-            <h3>Bewijs links</h3>
-            <ul class="list-group">
-                ${reis.urls.map((url, index) => `<li class="list-group-item"><a class="bewijslink" href=${url} target="_blank">Bewijslink ${index + 1}</a></li>`).join("")}
-            </ul>
-        </div>
-        <div class="col">
-            <h3>Gepasseerde stations</h3>
-            <ul class="list-group"><li class="list-group-item">
-                ${reis.gepasseerdestations.join(`</li><li class="list-group-item">`)}
-            </li></ul>
-        </div>
     </div>
 </div>
-
-<script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzFyMJHv5PxYxmKCLto4jS510t86F2_xg&callback=initMap">
 </script>
 </body>
 </html>
