@@ -1,10 +1,11 @@
 const {
     planReis,
     multiReis,
-    formatteerReis
+    formatteerReis,
+    reisStats
 } = require("multiplanner");
 
 module.exports = {
-    service: async (reisscript) => formatteerReis(await planReis(multiReis(reisscript))),
+    service: async (reisscript) => formatteerReis(reisStats(await planReis(multiReis(reisscript)))),
     responsetype: "text/plain"
 };
