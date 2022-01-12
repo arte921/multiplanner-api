@@ -8,8 +8,8 @@ const { getBijbel } = require('bijbel-package');
 
 (async () => {
     const certificaten = {
-        key: await fs.readFile('/etc/letsencrypt/live/multiplanner.duckdns.org/privkey.pem'),
-        cert: await fs.readFile('/etc/letsencrypt/live/multiplanner.duckdns.org/fullchain.pem')
+        key: await fs.readFile('/home/arte/https/privkey.pem'),
+        cert: await fs.readFile('/home/arte/https/fullchain.pem')
     };
 
     const services = {};
