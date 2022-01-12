@@ -1,5 +1,5 @@
 const path = require("path");
-const http = require('http');
+const https = require('https');
 const fs = require('fs/promises');
 
 const leesMap = require("./functies/leesMap.js");
@@ -7,6 +7,11 @@ const invertedSwitch = require("./functies/invertedSwitch.js");
 const { getBijbel } = require('bijbel-package');
 
 (async () => {
+    const certificaten = {
+        key: await fs.readFile('/etc/letsencrypt/live/multiplanner.duckdns.org/privkey.pem'),
+        cert: await fs.readFile('/etc/letsencrypt/live/multiplanner.duckdns.org/fullchain.pem')
+    };
+
     const services = {};
     const paginas = {};
 
@@ -22,7 +27,7 @@ const { getBijbel } = require('bijbel-package');
     }
 
 
-    http.createServer((request, response) => {
+    https.createServer(certificaten, (request, response) => {
         const { headers, method, url } = request;
         let body = [];
 
